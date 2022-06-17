@@ -1,10 +1,9 @@
 const User = require('../models/user');
-const handleErrors = require('../midlewares/helpers');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ users }))
-    .catch((err) => handleErrors(err, res));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 const createUser = (req, res) => {
@@ -12,7 +11,12 @@ const createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send({ user, message: 'Пользователь создан' }))
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const findUser = (req, res) => {
@@ -25,7 +29,12 @@ const findUser = (req, res) => {
       }
       return res.status(200).send({ user, message: 'Пользователь найден' });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const updateUserInfo = (req, res) => {
@@ -39,7 +48,12 @@ const updateUserInfo = (req, res) => {
       }
       return res.status(200).send({ user, message: 'Информация обновлена' });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const updateUserAvatar = (req, res) => {
@@ -53,7 +67,12 @@ const updateUserAvatar = (req, res) => {
       }
       return res.status(200).send({ user, message: 'Аватар обновлен' });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {

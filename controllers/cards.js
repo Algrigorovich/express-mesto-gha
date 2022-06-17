@@ -1,10 +1,9 @@
 const Card = require('../models/card');
-const handleErrors = require('../midlewares/helpers');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send({ cards }))
-    .catch((err) => handleErrors(err, res));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 const createCard = (req, res) => {
@@ -12,7 +11,9 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.status(200).send({ card, message: 'Карточка добавлена' }))
-    .catch((err) => handleErrors(err, res));
+    .catch(() => {
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const deleteCard = (req, res) => {
@@ -25,7 +26,12 @@ const deleteCard = (req, res) => {
       }
       res.status(200).send({ message: 'Карточка удалена' });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const likeCard = (req, res) => {
@@ -40,7 +46,12 @@ const likeCard = (req, res) => {
       }
       return res.status(200).send({ card });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -55,7 +66,12 @@ const dislikeCard = (req, res) => {
       }
       return res.status(200).send({ card });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {
