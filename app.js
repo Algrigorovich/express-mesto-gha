@@ -23,6 +23,10 @@ app.use((req, res, next) => {
 
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
+app.use((req, res, next) => {
+  res.status(404).send({ message: 'Запрос не может быть обработан' });
+  next();
+});
 
 app.listen(PORT, () => {
 });

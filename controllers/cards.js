@@ -2,7 +2,7 @@ const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.send({ cards }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
@@ -10,9 +10,9 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send({ card, message: 'Карточка добавлена' }))
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' })
+      res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -26,7 +26,12 @@ const deleteCard = (req, res) => {
       }
       res.send({ message: 'Карточка удалена' });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const likeCard = (req, res) => {
@@ -34,8 +39,19 @@ const likeCard = (req, res) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  )
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка по указанному _id не найдена.' });
+      }
+      return res.send({ card });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -43,8 +59,19 @@ const dislikeCard = (req, res) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+  )
+    .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Карточка по указанному _id не найдена.' });
+      }
+      return res.send({ card });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {

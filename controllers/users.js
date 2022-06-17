@@ -2,7 +2,7 @@ const User = require('../models/user');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).send({ data: users }))
+    .then((users) => res.status(200).send({ users }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
@@ -10,9 +10,9 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(200).send({ data: user, message: 'Пользователь создан' }))
+    .then((user) => res.status(200).send({ user, message: 'Пользователь создан' }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные.' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -27,10 +27,10 @@ const findUser = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(200).send({ data: user, message: 'Пользователь найден' });
+      return res.status(200).send({ user, message: 'Пользователь найден' });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: 'Переданы некорректные данные.' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -46,7 +46,7 @@ const updateUserInfo = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(200).send({ data: user, message: 'Информация обновлена' });
+      return res.status(200).send({ user, message: 'Информация обновлена' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
@@ -65,7 +65,7 @@ const updateUserAvatar = (req, res) => {
       if (!user) {
         return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(200).send({ data: user, message: 'Аватар обновлен' });
+      return res.status(200).send({ user, message: 'Аватар обновлен' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
