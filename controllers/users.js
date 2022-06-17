@@ -2,7 +2,7 @@ const User = require('../models/user');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(200).res.send({ data: users }))
+    .then((users) => res.status(200).send({ data: users }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
@@ -10,10 +10,10 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(200).res.send({ data: user }))
+    .then((user) => res.status(200).send({ data: user, message: 'Пользователь создан' }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
       } else {
         res.status(500).send({ message: 'Произошла ошибка' });
       }
@@ -25,7 +25,7 @@ const findUser = (req, res) => {
 
   User.findById(id)
     .then((user) => {
-      res.status(200).res.send({ data: user });
+      res.status(200).send({ data: user, message: 'Пользователь найден' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -39,17 +39,39 @@ const findUser = (req, res) => {
 const updateUserInfo = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
+
   User.findByIdAndUpdate(userId, { name, about }, { new: true })
-    .then((user) => res.status(200).res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}` }));
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      return res.status(200).send({ data: user, message: 'Информация обновлена' });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const updateUserAvatar = (req, res) => {
-  const newAvatar = req.body.avatar;
+  const { avatar } = req.body;
   const userId = req.user._id;
-  User.findOneAndUpdate(userId, { avatar: newAvatar }, { new: true })
-    .then((user) => res.status(200).res.send({ data: user }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+
+  User.findOneAndUpdate(userId, { avatar }, { new: true })
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      return res.status(200).send({ data: user, message: 'Аватар обновлен' });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {
