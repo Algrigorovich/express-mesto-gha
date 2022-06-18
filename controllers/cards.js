@@ -1,10 +1,14 @@
 const Card = require('../models/card');
-const { handleError, NOT_FOUND } = require('../midlewares/handleError');
+const {
+  NOT_FOUND,
+  WRONG_DATA,
+  SERVER_ERROR,
+} = require('../constants/errors');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ cards }))
-    .catch((err) => handleError(err, res));
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 const createCard = (req, res) => {
@@ -12,7 +16,12 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ card }))
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const deleteCard = (req, res) => {
@@ -25,7 +34,12 @@ const deleteCard = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const likeCard = (req, res) => {
@@ -40,7 +54,12 @@ const likeCard = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -55,7 +74,12 @@ const dislikeCard = (req, res) => {
       }
       return res.send({ card });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {

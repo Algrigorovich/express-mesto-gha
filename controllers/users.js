@@ -1,10 +1,15 @@
 const User = require('../models/user');
-const { handleError, NOT_FOUND } = require('../midlewares/handleError');
+
+const {
+  NOT_FOUND,
+  WRONG_DATA,
+  SERVER_ERROR,
+} = require('../constants/errors');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ users }))
-    .catch((err) => handleError(err, res));
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 const createUser = (req, res) => {
@@ -12,7 +17,12 @@ const createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ user }))
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const findUser = (req, res) => {
@@ -25,7 +35,12 @@ const findUser = (req, res) => {
       }
       return res.send({ user });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const updateUserInfo = (req, res) => {
@@ -39,21 +54,31 @@ const updateUserInfo = (req, res) => {
       }
       return res.send({ user });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+  User.findOneAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
       }
       return res.send({ user });
     })
-    .catch((err) => handleError(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
+      }
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {
