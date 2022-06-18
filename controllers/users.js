@@ -1,27 +1,18 @@
 const User = require('../models/user');
-
-const NOT_FOUND = 404;
-const WRONG_DATA = 400;
-const SERVER_ERROR = 500;
-const OK = 200;
+const { handleError, NOT_FOUND } = require('../midlewares/handleError');
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(OK).send({ users }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
+    .then((users) => res.send({ users }))
+    .catch((err) => handleError(err, res));
 };
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(OK).send({ user, message: 'Пользователь создан' }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+    .then((user) => res.send({ user }))
+    .catch((err) => handleError(err, res));
 };
 
 const findUser = (req, res) => {
@@ -32,14 +23,9 @@ const findUser = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(OK).send({ user, message: 'Пользователь найден' });
+      return res.send({ user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+    .catch((err) => handleError(err, res));
 };
 
 const updateUserInfo = (req, res) => {
@@ -51,14 +37,9 @@ const updateUserInfo = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(OK).send({ user, message: 'Информация обновлена' });
+      return res.send({ user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+    .catch((err) => handleError(err, res));
 };
 
 const updateUserAvatar = (req, res) => {
@@ -70,14 +51,9 @@ const updateUserAvatar = (req, res) => {
       if (!user) {
         return res.status(NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.status(OK).send({ user, message: 'Аватар обновлен' });
+      return res.send({ user });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(WRONG_DATA).send({ message: 'Переданы некорректные данные.' });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+    .catch((err) => handleError(err, res));
 };
 
 module.exports = {
