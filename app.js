@@ -33,7 +33,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required().uri(),
+    avatar: Joi.string().required().pattern(/^https?:\/\/[www]?\.?[a-z0-9-.]*\/?#?$/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
@@ -44,13 +44,12 @@ app.use(auth);
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
+app.use(errors());
+app.use(handleError);
 app.use((req, res, next) => {
   res.status(NOT_FOUND).send({ message: 'Запрос не может быть обработан' });
   next();
 });
-
-app.use(errors());
-app.use(handleError);
 
 app.listen(PORT, () => {
 });

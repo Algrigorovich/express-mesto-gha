@@ -94,7 +94,7 @@ const updateUserAvatar = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
-      return res.send({ user });
+      return res.send({ avatar });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
