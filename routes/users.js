@@ -13,7 +13,7 @@ router.get('/', getUsers);
 
 router.get('/:id', celebrate({
   params: Joi.object().keys({
-    id: Joi.string().hex().min(2).max(30),
+    id: Joi.string().hex().length(24),
   }),
 }), findUser);
 
@@ -28,7 +28,7 @@ router.patch('/me', celebrate({
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().uri(),
+    avatar: Joi.string().required().pattern(/^https?:\/\/[www]?\.?[a-z0-9-.]*\/?#?$/),
   }),
 }), updateUserAvatar);
 
