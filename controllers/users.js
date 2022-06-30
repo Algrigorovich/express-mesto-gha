@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request');
 const AuthError = require('../errors/auth-err');
-const DublicateError = require('../errors/dublicate');
+const DuplicateError = require('../errors/duplicate');
 const { MONGO_ERROR } = require('../constants/errors');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -36,7 +36,7 @@ const createUser = (req, res, next) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         throw new BadRequestError('Переданы некорректные данные.');
       } else if (err.name === 'MongoError' || err.code === MONGO_ERROR) {
-        throw new DublicateError('Данный email уже занят.');
+        throw new DuplicateError('Данный email уже занят.');
       } else {
         next(err);
       }
@@ -73,7 +73,7 @@ const updateUserInfo = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
-      return res.send({ user });
+      return res.send({ name, about });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {

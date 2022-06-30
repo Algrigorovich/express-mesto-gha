@@ -11,12 +11,6 @@ const {
 
 router.get('/', getUsers);
 
-router.get('/:id', celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().hex().length(24),
-  }),
-}), findUser);
-
 router.get('/me', getUserInfo);
 
 router.patch('/me', celebrate({
@@ -26,9 +20,15 @@ router.patch('/me', celebrate({
   }),
 }), updateUserInfo);
 
+router.get('/:id', celebrate({
+  params: Joi.object().keys({
+    id: Joi.string().hex().length(24),
+  }),
+}), findUser);
+
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(/^https?:\/\/[www]?\.?[a-z0-9-.]*\/?#?$/),
+    avatar: Joi.string().required().pattern(/(https?:\/\/)([www.]?[a-zA-Z0-9-]+\.)([^\s]{2,})/),
   }),
 }), updateUserAvatar);
 
