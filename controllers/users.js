@@ -115,9 +115,7 @@ const getUserInfo = (req, res, next) => {
       }
       return res.send({ user });
     }))
-    .catch((err) => {
-      console.log(err);
-    });
+    .catch(next);
 };
 
 const login = (req, res, next) => {
