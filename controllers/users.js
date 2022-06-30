@@ -107,7 +107,7 @@ const updateUserAvatar = (req, res, next) => {
 };
 
 const getUserInfo = (req, res, next) => {
-  const { id } = req.user._id;
+  const id = req.user._id;
   User.findById(id)
     .then(((user) => {
       if (!user) {
@@ -115,7 +115,9 @@ const getUserInfo = (req, res, next) => {
       }
       return res.send({ user });
     }))
-    .catch(next);
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 const login = (req, res, next) => {
