@@ -10,7 +10,7 @@ const cardsRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
 const handleError = require('./middlewares/handle-error');
 const { login, createUser } = require('./controllers/users');
-const { NOT_FOUND } = require('./constants/errors');
+const NotFoundError = require('./errors/not-found-err');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 }), login);
 
@@ -33,7 +33,8 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/(https?:\/\/)([www.]?[a-zA-Z0-9-]+\.)([^\s]{2,})/),
+    // eslint-disable-next-line no-useless-escape
+    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -47,8 +48,8 @@ app.use('/cards', cardsRouter);
 app.use(errors());
 
 app.use((req, res, next) => {
-  res.status(NOT_FOUND).send({ message: 'Запрос не может быть обработан' });
-  next();
+  Promise.reject(new NotFoundError('Запрос не может быть обработан.'))
+    .catch(next);
 });
 
 app.use(handleError);

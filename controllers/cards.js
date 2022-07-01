@@ -11,6 +11,7 @@ const getCards = (req, res, next) => {
     .catch(next);
 };
 
+// спасибо, наставник мне объяснил всё, я постараюсь сделать как вы советуете, но попозже)
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
