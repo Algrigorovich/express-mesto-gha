@@ -3,6 +3,7 @@ const isEmail = require('validator/lib/isEmail');
 
 const bcrypt = require('bcryptjs');
 const AuthError = require('../errors/auth-err');
+const urlRegexp = require('../constants/regexp-url');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,7 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator: (v) => /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/.test(v),
+      validator: (v) => urlRegexp.test(v),
       message: 'Неправильный формат ссылки',
     },
   },

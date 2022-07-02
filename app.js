@@ -11,6 +11,7 @@ const auth = require('./middlewares/auth');
 const handleError = require('./middlewares/handle-error');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
+const urlRegexp = require('./constants/regexp-url');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -33,8 +34,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    // eslint-disable-next-line no-useless-escape
-    avatar: Joi.string().pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
+    avatar: Joi.string().pattern(urlRegexp),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),

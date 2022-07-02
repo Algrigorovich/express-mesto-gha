@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const urlRegexp = require('../constants/regexp-url');
+
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -11,7 +13,7 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (v) => /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/.test(v),
+      validator: (v) => urlRegexp.test(v),
       message: 'Неправильный формат ссылки',
     },
   },
