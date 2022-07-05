@@ -2,26 +2,35 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cors = require('cors');
 const { errors } = require('celebrate');
 const { celebrate, Joi } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const auth = require('./middlewares/auth');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const handleError = require('./middlewares/handle-error');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
 const urlRegexp = require('./constants/regexp-url');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3001 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(requestLogger);
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use(cookieParser());
+const options = {
+  origin:
+    'http://localhost:3000',
+  credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+};
+
+app.use(cors(options));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -45,6 +54,7 @@ app.use(auth);
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 
+app.use(errorLogger);
 app.use(errors());
 
 app.use((req, res, next) => {

@@ -14,7 +14,7 @@ const getUsers = (req, res, next) => {
     .then((users) => res.send({ users }))
     .catch(next);
 };
-// спасибо за ревью, наставник всё мне объяснил, я постараюсь сделать как вы советуете, но попозже)
+
 const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
@@ -124,7 +124,7 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'super-puper-secret-code', { expiresIn: '7d' });
-      res.send({ token });
+      res.send({ token, email });
     })
     .catch(() => {
       throw new AuthError('Неправильная почта или пароль.');
