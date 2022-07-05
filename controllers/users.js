@@ -128,7 +128,7 @@ const login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       })
-        .send({ message: 'Вход успешен' });
+        .end();
     })
     .catch(() => {
       throw new AuthError('Неправильная почта или пароль.');
